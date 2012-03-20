@@ -136,6 +136,12 @@ int main (int argc, char *argv[]) {
     
     speedProfile.has_turn_penalty_function = lua_function_exists( myLuaState, "turn_function" );
     
+    if(0 != luaL_dostring( myLuaState, "return discard_sharp_turns\n")) {
+        ERR(lua_tostring(myLuaState,-1)<< " occured in scripting block");
+    }
+    speedProfile.discardSharpTurns = lua_toboolean(myLuaState, -1);
+
+
     std::vector<ImportEdge> edgeList;
     NodeID nodeBasedNodeNumber = readBinaryOSRMGraphFromStream(in, edgeList, bollardNodes, trafficLightNodes, &internalToExternalNodeMapping, inputRestrictions);
     in.close();

@@ -275,6 +275,11 @@ void EdgeBasedGraphFactory::Run(const char * originalEdgeDataFilename, lua_State
                         }
                         unsigned penalty = 0;
                         TurnInstruction turnInstruction = AnalyzeTurn(u, v, w, penalty, myLuaState);
+
+                        if(!speedProfile.discardSharpTurns
+                           || (    turnInstruction != TurnInstructions.TurnSharpLeft  && turnInstruction != TurnInstructions.TurnLeft
+                                && turnInstruction != TurnInstructions.TurnSharpRight && turnInstruction != TurnInstructions.TurnRight
+                                && turnInstruction != TurnInstructions.UTurn ) ) {
                         if(turnInstruction == TurnInstructions.UTurn)
                             distance += speedProfile.uTurnPenalty;
 //                        if(!edgeData1.isAccessRestricted && edgeData2.isAccessRestricted) {
@@ -298,6 +303,9 @@ void EdgeBasedGraphFactory::Run(const char * originalEdgeDataFilename, lua_State
 
                         EdgeBasedEdge newEdge(edgeData1.edgeBasedNodeID, edgeData2.edgeBasedNodeID, edgeBasedEdges.size(), distance, true, false );
                         edgeBasedEdges.push_back(newEdge);
+                        } else {
+                            ++numberOfSkippedTurns;
+                        }
                     } else {
                         ++numberOfSkippedTurns;
                     }
