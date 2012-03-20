@@ -90,6 +90,7 @@ public:
             }
             rawRoute.rawViaNodeCoordinates.push_back(routeParameters.coordinates[i]);
         }
+
         std::vector<PhantomNode> phantomNodeVector(rawRoute.rawViaNodeCoordinates.size());
         for(unsigned i = 0; i < rawRoute.rawViaNodeCoordinates.size(); ++i) {
             if(checksumOK && i < routeParameters.hints.size() && "" != routeParameters.hints[i]) {
@@ -101,7 +102,7 @@ public:
                 }
             }
 //            INFO("Brute force lookup of coordinate " << i);
-            searchEngine->FindPhantomNodeForCoordinate( rawRoute.rawViaNodeCoordinates[i], phantomNodeVector[i], routeParameters.zoomLevel);
+            searchEngine->FindPhantomNodeForCoordinate( rawRoute.rawViaNodeCoordinates[i], phantomNodeVector[i], routeParameters.zoomLevel, routeParameters.side, routeParameters.sideCoordinates[i]);
         }
 
         for(unsigned i = 0; i < phantomNodeVector.size()-1; ++i) {

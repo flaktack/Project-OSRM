@@ -33,7 +33,7 @@ template <typename Iterator, class HandlerT>
 struct APIGrammar : qi::grammar<Iterator> {
     APIGrammar(HandlerT * h) : APIGrammar::base_type(api_call), handler(h) {
         api_call = qi::lit('/') >> string[boost::bind(&HandlerT::setService, handler, ::_1)] >> *(query);
-        query    = ('?') >> (+(zoom | output | jsonp | checksum | location | hint | cmp | language | instruction | geometry | alt_route | old_API) ) ;
+        query    = ('?') >> (+(zoom | output | jsonp | checksum | sLocation | location | side | hint | cmp | language | instruction | geometry | alt_route | old_API) ) ;
 
         zoom        = (-qi::lit('&')) >> qi::lit('z')            >> '=' >> qi::short_[boost::bind(&HandlerT::setZoomLevel, handler, ::_1)];
         output      = (-qi::lit('&')) >> qi::lit("output")       >> '=' >> string[boost::bind(&HandlerT::setOutputFormat, handler, ::_1)];
@@ -42,7 +42,10 @@ struct APIGrammar : qi::grammar<Iterator> {
         instruction = (-qi::lit('&')) >> qi::lit("instructions") >> '=' >> qi::bool_[boost::bind(&HandlerT::setInstructionFlag, handler, ::_1)];
         geometry    = (-qi::lit('&')) >> qi::lit("geometry")     >> '=' >> qi::bool_[boost::bind(&HandlerT::setGeometryFlag, handler, ::_1)];
         cmp         = (-qi::lit('&')) >> qi::lit("compression")  >> '=' >> qi::bool_[boost::bind(&HandlerT::setCompressionFlag, handler, ::_1)];
+        sLocation   = (-qi::lit('&')) >> qi::lit("loc")          >> '=' >> (qi::double_ >> qi::lit(',') >> qi::double_ >> qi::lit(':') >> qi::double_ >> qi::lit(',') >> qi::double_)
+                                                                                                                       [boost::bind(&HandlerT::addCoordinateWithSideHint, handler, ::_1)];
         location    = (-qi::lit('&')) >> qi::lit("loc")          >> '=' >> (qi::double_ >> qi::lit(',') >> qi::double_)[boost::bind(&HandlerT::addCoordinate, handler, ::_1)];
+        side        = (-qi::lit('&')) >> qi::lit("side")         >> '=' >> string[boost::bind(&HandlerT::setSide, handler, ::_1)];
         hint        = (-qi::lit('&')) >> qi::lit("hint")         >> '=' >> stringwithDot[boost::bind(&HandlerT::addHint, handler, ::_1)];
         language    = (-qi::lit('&')) >> qi::lit("hl")           >> '=' >> string[boost::bind(&HandlerT::setLanguage, handler, ::_1)];
         alt_route   = (-qi::lit('&')) >> qi::lit("alt")          >> '=' >> qi::bool_[boost::bind(&HandlerT::setAlternateRouteFlag, handler, ::_1)];
@@ -52,7 +55,7 @@ struct APIGrammar : qi::grammar<Iterator> {
         stringwithDot = +(qi::char_("a-zA-Z0-9_.-"));
     }
     qi::rule<Iterator> api_call, query;
-    qi::rule<Iterator, std::string()> service, zoom, output, string, jsonp, checksum, location, hint,
+    qi::rule<Iterator, std::string()> service, zoom, output, string, jsonp, checksum, sLocation, location, side, hint,
                                       stringwithDot, language, instruction, geometry,
                                       cmp, alt_route, old_API;
 

@@ -54,6 +54,12 @@ or see http://www.gnu.org/licenses/agpl.txt.
 
 namespace NNGrid{
 
+enum SideOfEdge {
+    LEFT  = -1,
+    BOTH  =  0,
+    RIGHT =  1
+};
+
 static boost::thread_specific_ptr<std::ifstream> localStream;
 
 template<bool WriteAccess = false>
@@ -159,12 +165,13 @@ public:
         return (a == b && c == d) || (a == c && b == d) || (a == d && b == c);
     }
 
-    bool FindPhantomNodeForCoordinate( const _Coordinate & location, PhantomNode & resultNode, const unsigned zoomLevel) {
+    bool FindPhantomNodeForCoordinate( const _Coordinate & location, PhantomNode & resultNode, const unsigned zoomLevel, SideOfEdge side = BOTH, const _Coordinate & sideHint = _Coordinate()) {
         bool ignoreTinyComponents = (zoomLevel <= 14);
 //        INFO("Coordinate: " << location << ", zoomLevel: " << zoomLevel << ", ignoring tinyComponentents: " << (ignoreTinyComponents ? "yes" : "no"));
 //        double time1 = get_timestamp();
         bool foundNode = false;
         const _Coordinate startCoord(PRECISION*(lat2y(static_cast<double>(location.lat)/FPRECISION)), location.lon);
+        _Coordinate sideHintCoord;
         /** search for point on edge close to source */
         const unsigned fileIndex = GetFileIndexForLatLon(startCoord.lat, startCoord.lon);
         std::vector<_GridEdge> candidates;
@@ -177,6 +184,13 @@ public:
             }
         }
 //        INFO("looked up " << candidates.size());
+
+        if(sideHint.isValid()) {
+            sideHintCoord = _Coordinate(PRECISION*(lat2y(static_cast<double>(sideHint.lat)/FPRECISION)), sideHint.lon);
+        } else {
+            sideHintCoord = startCoord;
+        }
+
         _GridEdge smallestEdge;
         _Coordinate tmp, edgeStartCoord, edgeEndCoord;
         double dist = std::numeric_limits<double>::max();
@@ -185,6 +199,7 @@ public:
         BOOST_FOREACH(const _GridEdge & candidate, candidates) {
             if(candidate.belongsToTinyComponent && ignoreTinyComponents)
                 continue;
+            if(side == BOTH || LocationSideOfEdge(candidate.startCoord, candidate.targetCoord, sideHintCoord) == side) {
             r = 0.;
             tmpDist = ComputeDistance(startCoord, candidate.startCoord, candidate.targetCoord, tmp, &r);
 //            INFO("dist " << startCoord << "->[" << candidate.startCoord << "-" << candidate.targetCoord << "]=" << tmpDist );
@@ -209,6 +224,7 @@ public:
                 resultNode.weight2 = candidate.weight;
                 //INFO("b) " << candidate.edgeBasedNode << ", dist: " << tmpDist);
             }
+			}
         }
 
         //        INFO("startcoord: " << smallestEdge.startCoord << ", tgtcoord" <<  smallestEdge.targetCoord << "result: " << newEndpoint);
@@ -318,6 +334,23 @@ private:
 
     inline bool DoubleEpsilonCompare(const double d1, const double d2) const {
         return (std::fabs(d1 - d2) < FLT_EPSILON);
+    }
+
+    inline SideOfEdge LocationSideOfEdge(const _Coordinate &source, const _Coordinate &target, const _Coordinate &loc) {
+        int s = (target.lat - source.lat) * (loc.lon - source.lon)
+              - (target.lon - source.lon) * (loc.lat - source.lat);
+
+        //if(loc.lat == 4746071 && loc.lon == 1895686 && s < 1000 && s > -1000) {
+        //    INFO("SIDE OF WAY: " << s << " (" << source.lat << ", " << source.lon << " => " << target.lat << ", " << target.lon << " ? " << loc.lat << ", " << loc.lon << ")");
+        //}
+
+        if(s < 0)
+            return LEFT;
+
+        if(s > 0)
+            return RIGHT;
+
+        return BOTH;
     }
 
 #ifndef ROUTED

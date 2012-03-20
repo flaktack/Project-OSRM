@@ -27,9 +27,10 @@ or see http://www.gnu.org/licenses/agpl.txt.
 #include <boost/fusion/sequence/intrinsic.hpp>
 
 #include "../DataStructures/Coordinate.h"
+#include "../DataStructures/NNGrid.h"
 
 struct RouteParameters {
-    RouteParameters() : zoomLevel(18), printInstructions(false), alternateRoute(true), geometry(true), compression(true), deprecatedAPI(false), checkSum(-1) {}
+    RouteParameters() : zoomLevel(18), printInstructions(false), alternateRoute(true), geometry(true), compression(true), deprecatedAPI(false), checkSum(-1), side(NNGrid::BOTH) {}
     short zoomLevel;
     bool printInstructions;
     bool alternateRoute;
@@ -37,12 +38,14 @@ struct RouteParameters {
     bool compression;
     bool deprecatedAPI;
     unsigned checkSum;
+    NNGrid::SideOfEdge side;
     std::string service;
     std::string outputFormat;
     std::string jsonpParameter;
     std::string language;
     std::vector<std::string> hints;
     std::vector<_Coordinate> coordinates;
+    std::vector<_Coordinate> sideCoordinates;
     typedef HashTable<std::string, std::string>::MyIterator OptionsIterator;
 
     void setZoomLevel(const short i) {
@@ -60,6 +63,17 @@ struct RouteParameters {
 
     void setChecksum(const unsigned c) {
         checkSum = c;
+    }
+
+    void setSide(const std::string & s) {
+        if("left" == s) {
+            side = NNGrid::LEFT;
+        }
+        else if("right" == s) {
+            side = NNGrid::RIGHT;
+        } else {
+            side = NNGrid::BOTH;
+        }
     }
 
     void setInstructionFlag(const bool b) {
@@ -98,8 +112,18 @@ struct RouteParameters {
     void addCoordinate(boost::fusion::vector < double, double > arg_) {
         int lat = FPRECISION*boost::fusion::at_c < 0 > (arg_);
         int lon = FPRECISION*boost::fusion::at_c < 1 > (arg_);
-        _Coordinate myCoordinate(lat, lon);
         coordinates.push_back(_Coordinate(lat, lon));
+        sideCoordinates.push_back(_Coordinate(lat, lon));
+    }
+
+    void addCoordinateWithSideHint(boost::fusion::vector < double, double, double, double > arg_) {
+        int lat = FPRECISION*boost::fusion::at_c < 0 > (arg_);
+        int lon = FPRECISION*boost::fusion::at_c < 1 > (arg_);
+        coordinates.push_back(_Coordinate(lat, lon));
+
+        lat = FPRECISION*boost::fusion::at_c < 2 > (arg_);
+        lon = FPRECISION*boost::fusion::at_c < 3 > (arg_);
+        sideCoordinates.push_back(_Coordinate(lat, lon));
     }
 };
 
