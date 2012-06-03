@@ -24,6 +24,8 @@ or see http://www.gnu.org/licenses/agpl.txt.
 #include <climits>
 #include <iostream>
 
+#include "../typedefs.h"
+
 struct _Coordinate {
     int lat;
     int lon;
@@ -37,7 +39,7 @@ struct _Coordinate {
         return (INT_MIN != lat) && (INT_MIN != lon);
     }
     inline bool isValid() const {
-        if(lat > 90*100000 || lat < -90*100000 || lon > 180*100000 || lon <-180*100000) {
+        if(lat > 90*PRECISION || lat < -90*PRECISION || lon > 180*PRECISION || lon <-180*PRECISION) {
             return false;
         }
         return true;
@@ -58,10 +60,10 @@ inline double ApproximateDistance( const int lat1, const int lon1, const int lat
     assert(lat2 != INT_MIN);
     assert(lon2 != INT_MIN);
     double RAD = 0.017453292519943295769236907684886;
-    double lt1 = lat1/100000.;
-    double ln1 = lon1/100000.;
-    double lt2 = lat2/100000.;
-    double ln2 = lon2/100000.;
+    double lt1 = lat1/FPRECISION;
+    double ln1 = lon1/FPRECISION;
+    double lt2 = lat2/FPRECISION;
+    double ln2 = lon2/FPRECISION;
     double dlat1=lt1*(RAD);
 
     double dlong1=ln1*(RAD);
@@ -90,10 +92,10 @@ inline double ApproximateDistanceByEuclid(const _Coordinate &c1, const _Coordina
     assert(c2.lat != INT_MIN);
     assert(c2.lon != INT_MIN);
     const double RAD = 0.017453292519943295769236907684886;
-    const double lat1 = (c1.lat/100000.)*RAD;
-    const double lon1 = (c1.lon/100000.)*RAD;
-    const double lat2 = (c2.lat/100000.)*RAD;
-    const double lon2 = (c2.lon/100000.)*RAD;
+    const double lat1 = (c1.lat/FPRECISION)*RAD;
+    const double lon1 = (c1.lon/FPRECISION)*RAD;
+    const double lat2 = (c2.lat/FPRECISION)*RAD;
+    const double lon2 = (c2.lon/FPRECISION)*RAD;
 
     const double x = (lon2-lon1) * cos((lat1+lat2)/2.);
     const double y = (lat2-lat1);

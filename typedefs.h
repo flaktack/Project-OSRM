@@ -59,6 +59,8 @@ digitT round(digitT x) {
 }
 #endif
 
+static const int     PRECISION = 1000000 ;
+static const double FPRECISION = 1000000.;
 
 typedef unsigned int NodeID;
 typedef unsigned int EdgeID;

@@ -96,8 +96,8 @@ static inline void doubleToStringWithTwoDigitsBehindComma(const double value, st
 
 static inline void convertInternalLatLonToString(const int value, std::string & output) {
     char buffer[100];
-    buffer[10] = 0; // Nullterminierung
-    char* string = printInt< 10, 5 >( buffer, value );
+    buffer[12] = 0; // Nullterminierung
+    char* string = printInt< 12, 6 >( buffer, value );
     output = string;
 }
 

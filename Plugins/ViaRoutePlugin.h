@@ -213,7 +213,7 @@ public:
     }
 private:
     inline bool checkCoord(const _Coordinate & c) {
-        if(c.lat > 90*100000 || c.lat < -90*100000 || c.lon > 180*100000 || c.lon <-180*100000) {
+        if(c.lat > 90*PRECISION || c.lat < -90*PRECISION || c.lon > 180*PRECISION || c.lon <-180*PRECISION) {
             return false;
         }
         return true;

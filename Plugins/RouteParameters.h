@@ -96,8 +96,8 @@ struct RouteParameters {
     }
 
     void addCoordinate(boost::fusion::vector < double, double > arg_) {
-        int lat = 100000.*boost::fusion::at_c < 0 > (arg_);
-        int lon = 100000.*boost::fusion::at_c < 1 > (arg_);
+        int lat = FPRECISION*boost::fusion::at_c < 0 > (arg_);
+        int lon = FPRECISION*boost::fusion::at_c < 1 > (arg_);
         _Coordinate myCoordinate(lat, lon);
         coordinates.push_back(_Coordinate(lat, lon));
     }

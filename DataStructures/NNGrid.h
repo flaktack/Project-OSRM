@@ -102,9 +102,9 @@ public:
             p.printIncrement();
             if(edge.ignoreInGrid)
                 continue;
-            int slat = 100000*lat2y(edge.lat1/100000.);
+            int slat = PRECISION*lat2y(edge.lat1/FPRECISION);
             int slon = edge.lon1;
-            int tlat = 100000*lat2y(edge.lat2/100000.);
+            int tlat = PRECISION*lat2y(edge.lat2/FPRECISION);
             int tlon = edge.lon2;
             AddEdge( _GridEdge( edge.id, edge.nameID, edge.weight, _Coordinate(slat, slon), _Coordinate(tlat, tlon), edge.belongsToTinyComponent ) );
         }
@@ -164,7 +164,7 @@ public:
 //        INFO("Coordinate: " << location << ", zoomLevel: " << zoomLevel << ", ignoring tinyComponentents: " << (ignoreTinyComponents ? "yes" : "no"));
 //        double time1 = get_timestamp();
         bool foundNode = false;
-        const _Coordinate startCoord(100000*(lat2y(static_cast<double>(location.lat)/100000.)), location.lon);
+        const _Coordinate startCoord(PRECISION*(lat2y(static_cast<double>(location.lat)/FPRECISION)), location.lon);
         /** search for point on edge close to source */
         const unsigned fileIndex = GetFileIndexForLatLon(startCoord.lat, startCoord.lon);
         std::vector<_GridEdge> candidates;
@@ -222,7 +222,7 @@ public:
 
 //        INFO("startCoord: " << smallestEdge.startCoord << "; targetCoord: " << smallestEdge.targetCoord << "; newEndpoint: " << resultNode.location);
         const double ratio = (foundNode ? std::min(1., ApproximateDistance(smallestEdge.startCoord, resultNode.location)/ApproximateDistance(smallestEdge.startCoord, smallestEdge.targetCoord)) : 0);
-        resultNode.location.lat = round(100000.*(y2lat(static_cast<double>(resultNode.location.lat)/100000.)));
+        resultNode.location.lat = round(FPRECISION*(y2lat(static_cast<double>(resultNode.location.lat)/FPRECISION)));
 //        INFO("Length of vector: " << ApproximateDistance(smallestEdge.startCoord, resultNode.location)/ApproximateDistance(smallestEdge.startCoord, smallestEdge.targetCoord));
         //Hack to fix rounding errors and wandering via nodes.
         if(std::abs(location.lon - resultNode.location.lon) == 1)
@@ -258,7 +258,7 @@ public:
     }
 
     void FindNearestPointOnEdge(const _Coordinate& inputCoordinate, _Coordinate& outputCoordinate) {
-        _Coordinate startCoord(100000*(lat2y(static_cast<double>(inputCoordinate.lat)/100000.)), inputCoordinate.lon);
+        _Coordinate startCoord(PRECISION*(lat2y(static_cast<double>(inputCoordinate.lat)/FPRECISION)), inputCoordinate.lon);
         unsigned fileIndex = GetFileIndexForLatLon(startCoord.lat, startCoord.lon);
 
         std::vector<_GridEdge> candidates;
@@ -275,7 +275,7 @@ public:
             double tmpDist = ComputeDistance(startCoord, candidate.startCoord, candidate.targetCoord, tmp, &r);
             if(tmpDist < dist) {
                 dist = tmpDist;
-                outputCoordinate.lat = round(100000*(y2lat(static_cast<double>(tmp.lat)/100000.)));
+                outputCoordinate.lat = round(PRECISION*(y2lat(static_cast<double>(tmp.lat)/FPRECISION)));
                 outputCoordinate.lon = tmp.lon;
             }
         }
@@ -530,14 +530,14 @@ private:
     }
 
     inline void GetListOfIndexesForEdgeAndGridSize(const _Coordinate& start, const _Coordinate& target, std::vector<BresenhamPixel> &indexList) const {
-        double lat1 = start.lat/100000.;
-        double lon1 = start.lon/100000.;
+        double lat1 = start.lat/FPRECISION;
+        double lon1 = start.lon/FPRECISION;
 
         double x1 = ( lon1 + 180.0 ) / 360.0;
         double y1 = ( lat1 + 180.0 ) / 360.0;
 
-        double lat2 = target.lat/100000.;
-        double lon2 = target.lon/100000.;
+        double lat2 = target.lat/FPRECISION;
+        double lon2 = target.lon/FPRECISION;
 
         double x2 = ( lon2 + 180.0 ) / 360.0;
         double y2 = ( lat2 + 180.0 ) / 360.0;
@@ -552,8 +552,8 @@ private:
     }
 
     inline unsigned GetFileIndexForLatLon(const int lt, const int ln) const {
-        double lat = lt/100000.;
-        double lon = ln/100000.;
+        double lat = lt/FPRECISION;
+        double lon = ln/FPRECISION;
 
         double x = ( lon + 180.0 ) / 360.0;
         double y = ( lat + 180.0 ) / 360.0;

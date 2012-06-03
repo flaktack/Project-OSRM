@@ -33,10 +33,10 @@ inline double DescriptionFactory::RadianToDegree(const double radian) const {
 }
 
 double DescriptionFactory::GetBearing(const _Coordinate& A, const _Coordinate& B) const {
-    double deltaLong = DegreeToRadian(B.lon/100000. - A.lon/100000.);
+    double deltaLong = DegreeToRadian(B.lon/FPRECISION - A.lon/FPRECISION);
 
-    double lat1 = DegreeToRadian(A.lat/100000.);
-    double lat2 = DegreeToRadian(B.lat/100000.);
+    double lat1 = DegreeToRadian(A.lat/FPRECISION);
+    double lat2 = DegreeToRadian(B.lat/FPRECISION);
 
     double y = sin(deltaLong) * cos(lat2);
     double x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(deltaLong);

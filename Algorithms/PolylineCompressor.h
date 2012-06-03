@@ -27,6 +27,8 @@ or see http://www.gnu.org/licenses/agpl.txt.
 #include "../DataStructures/SegmentInformation.h"
 #include "../Util/StringUtil.h"
 
+static int FACTOR = PRECISION / 100000;
+
 class PolylineCompressor {
 private:
 	inline void encodeVectorSignedNumber(std::vector<int> & numbers, std::string & output) const {
@@ -62,13 +64,13 @@ public:
         output += "\"";
         if(!polyline.empty()) {
             _Coordinate lastCoordinate = polyline[0].location;
-            deltaNumbers.push_back( lastCoordinate.lat );
-            deltaNumbers.push_back( lastCoordinate.lon );
+            deltaNumbers.push_back( static_cast<int>(lastCoordinate.lat / FACTOR) );
+            deltaNumbers.push_back( static_cast<int>(lastCoordinate.lon / FACTOR) );
             for(unsigned i = 1; i < polyline.size(); ++i) {
                 if(!polyline[i].necessary)
                     continue;
-                deltaNumbers.push_back(polyline[i].location.lat - lastCoordinate.lat);
-                deltaNumbers.push_back(polyline[i].location.lon - lastCoordinate.lon);
+                deltaNumbers.push_back(static_cast<int>(polyline[i].location.lat / FACTOR ) - static_cast<int>(lastCoordinate.lat / FACTOR));
+                deltaNumbers.push_back(static_cast<int>(polyline[i].location.lon / FACTOR ) - static_cast<int>(lastCoordinate.lon / FACTOR));
                 lastCoordinate = polyline[i].location;
             }
             encodeVectorSignedNumber(deltaNumbers, output);
@@ -81,11 +83,11 @@ public:
 		std::vector<int> deltaNumbers(2*polyline.size());
 		output += "\"";
 		if(!polyline.empty()) {
-			deltaNumbers[0] = polyline[0].lat;
-			deltaNumbers[1] = polyline[0].lon;
+			deltaNumbers[0] = static_cast<int>(polyline[0].lat / FACTOR);
+			deltaNumbers[1] = static_cast<int>(polyline[0].lon / FACTOR);
 			for(unsigned i = 1; i < polyline.size(); ++i) {
-				deltaNumbers[(2*i)]   = (polyline[i].lat - polyline[i-1].lat);
-				deltaNumbers[(2*i)+1] = (polyline[i].lon - polyline[i-1].lon);
+				deltaNumbers[(2*i)]   = static_cast<int>(polyline[i].lat / FACTOR ) - static_cast<int>(polyline[i-1].lat / FACTOR);
+				deltaNumbers[(2*i)+1] = static_cast<int>(polyline[i].lon / FACTOR ) - static_cast<int>(polyline[i-1].lon / FACTOR);
 			}
 			encodeVectorSignedNumber(deltaNumbers, output);
 		}
