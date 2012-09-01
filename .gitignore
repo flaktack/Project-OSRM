@@ -1,3 +1,17 @@
+# Custom #
+##########
+
+*.osrm
+*.osrm.edges
+*.osrm.fileIndex
+*.osrm.hsgr
+*.osrm.names
+*.osrm.nodes
+*.osrm.ramIndex
+*.osrm.restrictions
+*.osrm.timestamp
+
+
 # Compiled source #
 ###################
 *.com
@@ -5,8 +19,7 @@
 *.dll
 *.exe
 *.o
-*.so
-
+*.so 
 # Packages #
 ############
 # it's better to unpack these files and commit the raw source
@@ -80,5 +93,5 @@ stxxl.errlog
 ###################
 /sandbox/
 
-/test/profile.lua
-/profile.lua
+test/profile.lua
+profile.lua
